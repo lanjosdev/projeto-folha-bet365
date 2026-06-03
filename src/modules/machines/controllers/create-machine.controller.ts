@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { CreateMachineService } from '../services/create-machine.service.js';
+import { HttpHelper } from '../../../utils/http.js';
 
 export class CreateMachineController {
   async handle(req: Request, res: Response, next: NextFunction) {
@@ -8,10 +9,8 @@ export class CreateMachineController {
       const service = new CreateMachineService();
       const machine = await service.execute(id);
       
-      res.status(201).json({
-        success: true,
-        data: machine,
-      });
+      const response = HttpHelper.created({ data: machine });
+      res.status(response.statusCode).json(response.body);
     } catch (error) {
       next(error);
     }
