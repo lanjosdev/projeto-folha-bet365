@@ -1,6 +1,6 @@
 import express from 'express';
 import { errorHandler } from './middlewares/error-handler.js';
-import { machineRoutes } from './modules/machines/machine.routes.js';
+import { machineRoutes } from './modules/machines/routes/machine.routes.js';
 
 export const app = express();
 
