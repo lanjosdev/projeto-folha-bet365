@@ -4,7 +4,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(3000),
   DATABASE_URL: z.string().url(),
-  API_TOKEN: z.string().min(1),
+  API_TOKEN: z.string().min(1, 'API_TOKEN is required'),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
