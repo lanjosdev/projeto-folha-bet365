@@ -19,6 +19,6 @@ app.get('/health', (_req, res) => {
 });
 
 // API Routes
-app.use('/api/machines', machineRoutes);
+app.use('/api/v1/machines', machineRoutes);
 
 app.use(errorHandler);

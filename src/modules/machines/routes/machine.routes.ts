@@ -11,7 +11,7 @@ const listMachinesController = new ListMachinesController();
 
 /**
  * @swagger
- * /api/machines:
+ * /api/v1/machines:
  *   post:
  *     summary: Cadastra uma nova máquina
  *     tags: [Machines]
@@ -76,7 +76,7 @@ router.post('/', apiTokenMiddleware, validate(createMachineSchema), createMachin
 
 /**
  * @swagger
- * /api/machines:
+ * /api/v1/machines:
  *   get:
  *     summary: Lista todas as máquinas
  *     tags: [Machines]
