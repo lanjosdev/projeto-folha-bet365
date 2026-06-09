@@ -3,6 +3,7 @@ import { CreateMachineController } from '../controllers/create-machine.controlle
 import { ListMachinesController } from '../controllers/list-machines.controller.js';
 import { validate } from '../../../middlewares/validate.js';
 import { apiTokenMiddleware } from '../../../middlewares/api-token.js';
+import { ensureAuthenticated } from '../../../middlewares/ensure-authenticated.js';
 import { createMachineSchema } from '../schemas/create-machine.schema.js';
 
 const router = Router();
@@ -80,6 +81,8 @@ router.post('/', apiTokenMiddleware, validate(createMachineSchema), createMachin
  *   get:
  *     summary: Lista todas as máquinas
  *     tags: [Machines]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Retorna a lista de máquinas ordenadas pela data de criação
@@ -90,6 +93,13 @@ router.post('/', apiTokenMiddleware, validate(createMachineSchema), createMachin
  *               data:
  *                 - id: "550e8400-e29b-41d4-a716-446655440000"
  *                   createdAt: "2026-06-03T18:00:00.000Z"
+ *       401:
+ *         description: Token ausente ou inválido
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: "Token JWT inválido ou ausente"
  *       500:
  *         description: Erro interno do servidor
  *         content:
@@ -98,6 +108,6 @@ router.post('/', apiTokenMiddleware, validate(createMachineSchema), createMachin
  *               success: false
  *               message: "Ocorreu um erro interno no servidor."
  */
-router.get('/', listMachinesController.handle.bind(listMachinesController));
+router.get('/', ensureAuthenticated, listMachinesController.handle.bind(listMachinesController));
 
 export { router as machineRoutes };

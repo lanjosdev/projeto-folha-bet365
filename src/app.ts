@@ -4,6 +4,8 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
 import { errorHandler } from './middlewares/error-handler.js';
 import { machineRoutes } from './modules/machines/routes/machine.routes.js';
+import { authRoutes } from './modules/auth/routes/auth.routes.js';
+import { userRoutes } from './modules/users/routes/user.routes.js';
 
 export const app = express();
 
@@ -19,6 +21,8 @@ app.get('/health', (_req, res) => {
 });
 
 // API Routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/machines', machineRoutes);
 
 app.use(errorHandler);
