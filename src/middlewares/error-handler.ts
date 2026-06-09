@@ -5,10 +5,25 @@ import { HttpHelper } from '../utils/http.js';
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ApplicationError) {
-    res.status(err.statusCode).json({
-      success: false,
-      message: err.message,
-    });
+    let response;
+    switch (err.statusCode) {
+      case 400:
+        response = HttpHelper.badRequest({ message: err.message });
+        break;
+      case 404:
+        response = HttpHelper.notFound({ message: err.message });
+        break;
+      case 409:
+        response = HttpHelper.conflict({ message: err.message });
+        break;
+      default:
+        response = {
+          statusCode: err.statusCode,
+          body: { success: false, message: err.message }
+        };
+    }
+    
+    res.status(response.statusCode).json(response.body);
     return;
   }
 
