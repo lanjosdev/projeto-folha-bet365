@@ -1,6 +1,6 @@
 # API Cadastro de Máquinas (Projeto Folha Bet365)
 
-API RESTful desenvolvida para o cadastro e listagem de máquinas.
+API RESTful desenvolvida para o cadastro e listagem de máquinas, contando com sistema de autenticação e gestão de usuários.
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -9,6 +9,7 @@ API RESTful desenvolvida para o cadastro e listagem de máquinas.
 - **Prisma ORM**
 - **MySQL** (via Docker)
 - **Zod** (Validação de dados)
+- **JWT (JSON Web Token)** & **Bcryptjs** (Segurança e Autenticação)
 - **Swagger** (Documentação da API)
 - **ESLint & Prettier** (Padronização de código)
 
@@ -24,9 +25,11 @@ A estrutura de pastas principal (`src/`) do projeto é organizada da seguinte fo
 src/
 ├── config/           # Configurações do Zod para variáveis de ambiente e Swagger
 ├── lib/              # Instância do banco (Prisma Client)
-├── middlewares/      # Tratamento global de erros, validação de schema e token HTTP
+├── middlewares/      # Tratamento global de erros, autenticação JWT e validação Zod
 ├── modules/
-│   └── machines/     # Módulo encapsulado com sua própria arquitetura interna
+│   ├── auth/         # Módulo responsável por login e geração de tokens
+│   ├── machines/     # Módulo de cadastro e listagem de máquinas
+│   └── users/        # Módulo de CRUD completo de usuários
 │       ├── controllers/  # Lida com as requisições HTTP (Request/Response)
 │       ├── repositories/ # Camada de acesso a dados isolando o banco (Prisma)
 │       ├── routes/       # Define os endpoints e mapeia para os controllers
@@ -50,6 +53,7 @@ O projeto foi construído apoiando-se em padrões de mercado para garantir sua m
 ---
 ## ✨ Boas Práticas
 
+- **Segurança (JWT & Bcrypt):** Senhas armazenadas com hash forte (bcrypt) e rotas sensíveis protegidas por JSON Web Token.
 - **Validação de Dados:** Utilização do `Zod` para garantir que os dados recebidos na API estejam no formato correto antes de qualquer processamento.
 - **Tratamento de Erros:** Middleware centralizado para captura e formatação padronizada de erros, evitando vazamento de informações sensíveis e retornando respostas HTTP adequadas.
 - **Documentação Interativa:** Uso do Swagger (`swagger-jsdoc` e `swagger-ui-express`) para documentação viva e interativa dos endpoints.
@@ -62,8 +66,10 @@ O projeto foi construído apoiando-se em padrões de mercado para garantir sua m
 
 ## ⚙️ Funcionalidades
 
+- **Autenticação:** Login seguro com verificação de hash e geração de token JWT.
+- **Gestão de Usuários:** CRUD completo para gerenciamento de contas de administradores.
 - **Cadastro de Máquinas:** Permite a criação de novos registros de máquinas.
-- **Listagem de Máquinas:** Recuperação dos dados de máquinas salvas no banco de dados.
+- **Listagem de Máquinas:** Recuperação dos dados de máquinas salvas (protegida via JWT).
 - **Health Check:** Endpoint `/health` para verificação de disponibilidade da API.
 
 ---
@@ -98,11 +104,15 @@ O projeto foi construído apoiando-se em padrões de mercado para garantir sua m
    docker-compose up -d
    ```
 
-5. **Gere os artefatos do Prisma e rode as migrações:**
+5. **Gere os artefatos do Prisma, rode as migrações e popule o banco (Seed):**
    ```bash
    npx prisma generate
    npx prisma db push
+   npx prisma db seed
    ```
+   > 💡 **Nota:** O comando `seed` criará automaticamente o usuário administrador padrão para o seu primeiro acesso:
+   > - **E-mail:** `admin@admin.com`
+   > - **Senha:** `admin123`
 
 6. **Inicie o servidor em modo de desenvolvimento:**
    ```bash
