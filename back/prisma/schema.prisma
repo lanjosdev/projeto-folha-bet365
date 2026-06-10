@@ -9,6 +9,7 @@ datasource db {
 
 model Machine {
   id        String   @id
+  status    String   @default("ACTIVE") // "ACTIVE" ou "ARCHIVED"
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("machines")

@@ -15,9 +15,31 @@ export class PrismaMachineRepository implements MachineRepository {
     });
   }
 
-  async findAll(): Promise<Machine[]> {
+  async findAll(params?: { skip?: number; take?: number; status?: string }): Promise<Machine[]> {
     return prisma.machine.findMany({
+      where: params?.status ? { status: params.status } : undefined,
+      skip: params?.skip,
+      take: params?.take,
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async count(params?: { status?: string }): Promise<number> {
+    return prisma.machine.count({
+      where: params?.status ? { status: params.status } : undefined,
+    });
+  }
+
+  async updateStatus(id: string, status: string): Promise<Machine> {
+    return prisma.machine.update({
+      where: { id },
+      data: { status },
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    await prisma.machine.delete({
+      where: { id },
     });
   }
 }
