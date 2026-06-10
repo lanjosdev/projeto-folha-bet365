@@ -1,6 +1,6 @@
 import { LoginForm } from '@/features/auth';
 
-export function Login() {
+export function LoginPage() {
   return (
     <div className="flex min-h-dvh">
       {/* Left side: Branding / Image */}

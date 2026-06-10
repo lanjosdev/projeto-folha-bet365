@@ -1,4 +1,4 @@
-export function Machines() {
+export function MachinesPage() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
       <div className="flex items-center justify-between">
