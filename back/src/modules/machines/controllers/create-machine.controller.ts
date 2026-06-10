@@ -8,7 +8,7 @@ export class CreateMachineController {
       const { id } = req.body;
       const service = new CreateMachineService();
       const machine = await service.execute(id);
-      
+
       const response = HttpHelper.created({ data: machine });
       res.status(response.statusCode).json(response.body);
     } catch (error) {
