@@ -7,9 +7,10 @@ export class ListMachinesController {
     try {
       const page = req.query.page ? parseInt(req.query.page as string) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      const status = req.query.status as string | undefined;
 
       const service = new ListMachinesService();
-      const result = await service.execute({ page, limit });
+      const result = await service.execute({ page, limit, status });
       
       const response = HttpHelper.ok({ data: result });
       res.status(response.statusCode).json(response.body);
