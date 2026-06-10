@@ -9,6 +9,7 @@ async function listMachines(params?: ListMachinesParams): Promise<ApiResponse<Pa
     params: {
       page: params?.page ?? 1,
       limit: params?.limit ?? 10,
+      status: params?.status,
     },
   });
   return response.data;

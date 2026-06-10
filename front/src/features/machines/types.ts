@@ -9,4 +9,5 @@ export interface Machine {
 export interface ListMachinesParams {
   page?: number;
   limit?: number;
+  status?: MachineStatus;
 }
