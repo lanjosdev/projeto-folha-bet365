@@ -29,8 +29,7 @@ const listMachinesController = new ListMachinesController();
  *             properties:
  *               id:
  *                 type: string
- *                 format: uuid
- *                 example: "550e8400-e29b-41d4-a716-446655440000"
+ *                 example: "maquina-front-01"
  *     responses:
  *       201:
  *         description: Máquina cadastrada com sucesso
@@ -40,7 +39,7 @@ const listMachinesController = new ListMachinesController();
  *               success: true
  *               message: "Criado com sucesso!"
  *               data:
- *                 id: "550e8400-e29b-41d4-a716-446655440000"
+ *                 id: "maquina-front-01"
  *                 createdAt: "2026-06-03T18:00:00.000Z"
  *       400:
  *         description: Payload inválido
@@ -50,7 +49,7 @@ const listMachinesController = new ListMachinesController();
  *               success: false
  *               message: "Payload inválido."
  *               issues:
- *                 id: ["O formato do ID deve ser um UUID válido"]
+ *                 id: ["O ID da máquina não pode estar vazio"]
  *       401:
  *         description: Token ausente ou inválido
  *         content:
@@ -91,7 +90,7 @@ router.post('/', apiTokenMiddleware, validate(createMachineSchema), createMachin
  *             example:
  *               success: true
  *               data:
- *                 - id: "550e8400-e29b-41d4-a716-446655440000"
+ *                 - id: "maquina-front-01"
  *                   createdAt: "2026-06-03T18:00:00.000Z"
  *       401:
  *         description: Token ausente ou inválido

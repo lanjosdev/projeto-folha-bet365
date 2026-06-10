@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Machine {
-  id        String   @id @db.Char(36)
+  id        String   @id
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("machines")
