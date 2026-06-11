@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { MachinesPage } from '@/pages/MachinesPage';
+import { ProfilePage } from '@/pages/ProfilePage';
 import { ErrorPage } from '@/pages/ErrorPage';
 import { PublicRoute } from './PublicRoute';
 import { PrivateRoute } from './PrivateRoute';
@@ -33,6 +34,10 @@ export const router = createBrowserRouter([
           {
             path: '/machines',
             element: <MachinesPage />,
+          },
+          {
+            path: '/profile',
+            element: <ProfilePage />,
           },
           // Aqui podemos adicionar outras rotas privadas no futuro
         ],

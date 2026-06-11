@@ -4,6 +4,7 @@ import {
   MonitorSmartphone,
   LogOut,
   ChevronsUpDown,
+  UserRound,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth';
 
@@ -136,6 +137,12 @@ export function AppSidebar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link to="/profile">
+                    <UserRound className="mr-2 h-4 w-4" />
+                    Meu Perfil
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={logout}
                   className="cursor-pointer text-red-500"
