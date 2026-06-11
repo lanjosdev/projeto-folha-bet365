@@ -4,6 +4,9 @@ import { ListUsersController } from '../controllers/list-users.controller.js';
 import { GetUserController } from '../controllers/get-user.controller.js';
 import { UpdateUserController } from '../controllers/update-user.controller.js';
 import { DeleteUserController } from '../controllers/delete-user.controller.js';
+import { GetOwnProfileController } from '../controllers/get-own-profile.controller.js';
+import { UpdateOwnProfileController } from '../controllers/update-own-profile.controller.js';
+import { UpdateOwnPasswordController } from '../controllers/update-own-password.controller.js';
 import { ensureAuthenticated } from '../../../middlewares/ensure-authenticated.js';
 
 const userRoutes = Router();
@@ -13,6 +16,9 @@ const listUsersController = new ListUsersController();
 const getUserController = new GetUserController();
 const updateUserController = new UpdateUserController();
 const deleteUserController = new DeleteUserController();
+const getOwnProfileController = new GetOwnProfileController();
+const updateOwnProfileController = new UpdateOwnProfileController();
+const updateOwnPasswordController = new UpdateOwnPasswordController();
 
 // The ensureAuthenticated middleware will be implemented in Phase 4.
 // For now we'll import it and use it, the compiler might complain until Phase 4.
@@ -117,6 +123,115 @@ userRoutes.post('/', createUserController.handle);
  *               message: "Invalid JWT token"
  */
 userRoutes.get('/', listUsersController.handle);
+
+/**
+ * @swagger
+ * /api/v1/users/me:
+ *   get:
+ *     summary: Retorna o perfil do usuário logado
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Detalhes do perfil do usuário
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: true
+ *               data:
+ *                 id: "550e8400-e29b-41d4-a716-446655440000"
+ *                 name: "João Silva"
+ *                 email: "joao@exemplo.com"
+ *                 createdAt: "2026-06-03T18:00:00.000Z"
+ *                 updatedAt: "2026-06-03T18:00:00.000Z"
+ *       401:
+ *         description: Não autorizado
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: "Invalid JWT token"
+ */
+userRoutes.get('/me', getOwnProfileController.handle);
+
+/**
+ * @swagger
+ * /api/v1/users/me:
+ *   put:
+ *     summary: Atualiza os dados de perfil do usuário logado
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "João Silva Atualizado"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "joao2@exemplo.com"
+ *     responses:
+ *       200:
+ *         description: Perfil atualizado com sucesso
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: true
+ *               data:
+ *                 id: "550e8400-e29b-41d4-a716-446655440000"
+ *                 name: "João Silva Atualizado"
+ *                 email: "joao2@exemplo.com"
+ *                 createdAt: "2026-06-03T18:00:00.000Z"
+ *                 updatedAt: "2026-06-09T18:00:00.000Z"
+ *       401:
+ *         description: Não autorizado
+ *       409:
+ *         description: E-mail já está em uso
+ */
+userRoutes.put('/me', updateOwnProfileController.handle);
+
+/**
+ * @swagger
+ * /api/v1/users/me/password:
+ *   patch:
+ *     summary: Atualiza a senha do usuário logado
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               oldPassword:
+ *                 type: string
+ *                 example: "senhaAtual123"
+ *               newPassword:
+ *                 type: string
+ *                 example: "novaSenhaForte456"
+ *     responses:
+ *       200:
+ *         description: Senha atualizada com sucesso
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: true
+ *               message: "Senha atualizada com sucesso"
+ *       400:
+ *         description: A nova senha não pode ser igual à antiga
+ *       401:
+ *         description: Senha atual incorreta
+ */
+userRoutes.patch('/me/password', updateOwnPasswordController.handle);
 
 /**
  * @swagger
