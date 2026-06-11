@@ -37,6 +37,13 @@ export class PrismaMachineRepository implements MachineRepository {
     });
   }
 
+  async updateName(id: string, name: string | null): Promise<Machine> {
+    return prisma.machine.update({
+      where: { id },
+      data: { name },
+    });
+  }
+
   async delete(id: string): Promise<void> {
     await prisma.machine.delete({
       where: { id },

@@ -12,5 +12,6 @@ export interface MachineRepository {
   findAll(params?: FindAllParams): Promise<Machine[]>;
   count(params?: { status?: string }): Promise<number>;
   updateStatus(id: string, status: string): Promise<Machine>;
+  updateName(id: string, name: string | null): Promise<Machine>;
   delete(id: string): Promise<void>;
 }

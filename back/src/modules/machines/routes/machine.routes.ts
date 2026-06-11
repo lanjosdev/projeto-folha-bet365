@@ -8,6 +8,8 @@ import { validate } from '../../../middlewares/validate.js';
 import { apiTokenMiddleware } from '../../../middlewares/api-token.js';
 import { ensureAuthenticated } from '../../../middlewares/ensure-authenticated.js';
 import { createMachineSchema } from '../schemas/create-machine.schema.js';
+import { UpdateMachineNameController } from '../controllers/update-machine-name.controller.js';
+import { updateMachineNameSchema } from '../schemas/update-machine-name.schema.js';
 
 const router = Router();
 const createMachineController = new CreateMachineController();
@@ -15,6 +17,7 @@ const listMachinesController = new ListMachinesController();
 const archiveMachineController = new ArchiveMachineController();
 const restoreMachineController = new RestoreMachineController();
 const deleteMachineController = new DeleteMachineController();
+const updateMachineNameController = new UpdateMachineNameController();
 
 /**
  * @swagger
@@ -245,5 +248,50 @@ router.patch('/:id/restore', ensureAuthenticated, restoreMachineController.handl
  *               message: "Ocorreu um erro interno no servidor."
  */
 router.delete('/:id', ensureAuthenticated, deleteMachineController.handle.bind(deleteMachineController));
+
+/**
+ * @swagger
+ * /api/v1/machines/{id}/name:
+ *   patch:
+ *     summary: Atualiza o nome/apelido de uma máquina
+ *     tags: [Machines]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID da máquina
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Minha Máquina"
+ *                 nullable: true
+ *     responses:
+ *       200:
+ *         description: Nome da máquina atualizado com sucesso
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: true
+ *               message: "Nome da máquina atualizado com sucesso"
+ *       400:
+ *         description: Payload inválido
+ *       401:
+ *         description: Token ausente ou inválido
+ *       404:
+ *         description: Máquina não encontrada
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.patch('/:id/name', ensureAuthenticated, validate(updateMachineNameSchema), updateMachineNameController.handle.bind(updateMachineNameController));
 
 export { router as machineRoutes };
