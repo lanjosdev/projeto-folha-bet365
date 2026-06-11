@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // Swagger Docs
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
