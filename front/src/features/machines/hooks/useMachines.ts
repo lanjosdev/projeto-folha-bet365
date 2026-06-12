@@ -43,3 +43,15 @@ export function useDeleteMachine() {
     },
   });
 }
+
+export function useUpdateMachineAlias() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) => 
+      machineService.updateMachineAlias(id, name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: MACHINES_QUERY_KEY });
+    },
+  });
+}

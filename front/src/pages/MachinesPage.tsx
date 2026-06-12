@@ -7,7 +7,8 @@ import {
   ArchiveRestore, 
   Trash2, 
   Server, 
-  AlertCircle 
+  AlertCircle,
+  Edit2
 } from 'lucide-react';
 
 import { 
@@ -15,7 +16,9 @@ import {
   useArchiveMachine, 
   useRestoreMachine, 
   useDeleteMachine,
-  type MachineStatus
+  useUpdateMachineAlias,
+  type MachineStatus,
+  type Machine
 } from '@/features/machines';
 
 import {
@@ -34,6 +37,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Pagination,
   PaginationContent,
@@ -70,6 +82,27 @@ export function MachinesPage() {
   const archiveMutation = useArchiveMachine();
   const restoreMutation = useRestoreMachine();
   const deleteMutation = useDeleteMachine();
+  const updateAliasMutation = useUpdateMachineAlias();
+
+  const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
+  const [aliasInput, setAliasInput] = useState('');
+
+  const handleEditAlias = (machine: Machine) => {
+    setEditingMachine(machine);
+    setAliasInput(machine.name || '');
+  };
+
+  const handleSaveAlias = () => {
+    if (!editingMachine) return;
+    updateAliasMutation.mutate(
+      { id: editingMachine.id, name: aliasInput },
+      {
+        onSuccess: () => {
+          setEditingMachine(null);
+        }
+      }
+    );
+  };
 
   const handleStatusChange = (newStatus: string) => {
     setStatus(newStatus as MachineStatus);
@@ -150,6 +183,7 @@ export function MachinesPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[300px]">ID da Máquina</TableHead>
+                  <TableHead>Nome/Apelido</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Data de Cadastro</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
@@ -163,6 +197,13 @@ export function MachinesPage() {
                         <Server className="size-4 text-muted-foreground" />
                         {machine.id}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      {machine.name ? (
+                        <span className="font-medium">{machine.name}</span>
+                      ) : (
+                        <span className="text-muted-foreground italic text-sm">Sem apelido</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge
@@ -185,6 +226,10 @@ export function MachinesPage() {
                         <DropdownMenuContent align="end" className="w-[160px]">
                           <DropdownMenuLabel>Ações</DropdownMenuLabel>
                           <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleEditAlias(machine)}>
+                            <Edit2 className="mr-2 size-4" />
+                            Editar Apelido
+                          </DropdownMenuItem>
                           {machine.status === 'ACTIVE' ? (
                             <DropdownMenuItem onClick={() => handleArchive(machine.id)}>
                               <Archive className="mr-2 size-4" />
@@ -259,6 +304,41 @@ export function MachinesPage() {
           </>
         )}
       </div>
+
+      <Dialog open={!!editingMachine} onOpenChange={(open) => !open && setEditingMachine(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Apelido da Máquina</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="alias">Nome / Apelido</Label>
+              <Input
+                id="alias"
+                placeholder="Ex: Máquina Produção 01"
+                value={aliasInput}
+                onChange={(e) => setAliasInput(e.target.value)}
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setEditingMachine(null)}
+              disabled={updateAliasMutation.isPending}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSaveAlias}
+              disabled={updateAliasMutation.isPending}
+            >
+              {updateAliasMutation.isPending ? 'Salvando...' : 'Salvar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

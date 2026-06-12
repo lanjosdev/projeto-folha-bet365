@@ -30,11 +30,17 @@ async function deleteMachine(id: string): Promise<ApiResponse<void>> {
   return response.data;
 }
 
+async function updateMachineAlias(id: string, name: string): Promise<ApiResponse<void>> {
+  const response = await api.patch<ApiResponse<void>>(`${BASE_PATH}/${id}/name`, { name });
+  return response.data;
+}
+
 export const machineService = Object.freeze({
   listMachines,
   archiveMachine,
   restoreMachine,
   deleteMachine,
+  updateMachineAlias,
 });
 
 export type MachineService = typeof machineService;
