@@ -49,6 +49,7 @@ const updateMachineNameController = new UpdateMachineNameController();
  *               message: "Criado com sucesso!"
  *               data:
  *                 id: "maquina-front-01"
+ *                 name: "Minha Máquina"
  *                 status: "ACTIVE"
  *                 createdAt: "2026-06-03T18:00:00.000Z"
  *       400:
@@ -105,6 +106,7 @@ router.post('/', apiTokenMiddleware, validate(createMachineSchema), createMachin
  *               data:
  *                 results:
  *                   - id: "maquina-front-01"
+ *                     name: "Minha Máquina"
  *                     status: "ACTIVE"
  *                     createdAt: "2026-06-03T18:00:00.000Z"
  *                 meta:
