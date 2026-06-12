@@ -213,7 +213,7 @@ export function MachinesPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {format(new Date(machine.createdAt), "dd 'de' MMMM, yyyy", { locale: ptBR })}
+                      {format(new Date(machine.createdAt), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
