@@ -1,24 +1,26 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { 
-  MoreHorizontal, 
-  Archive, 
-  ArchiveRestore, 
-  Trash2, 
-  Server, 
+import {
+  MoreHorizontal,
+  Archive,
+  ArchiveRestore,
+  Trash2,
+  Server,
   AlertCircle,
-  Edit2
+  Edit2,
+  LayoutList,
+  LayoutGrid,
 } from 'lucide-react';
 
-import { 
-  useMachines, 
-  useArchiveMachine, 
-  useRestoreMachine, 
+import {
+  useMachines,
+  useArchiveMachine,
+  useRestoreMachine,
   useDeleteMachine,
   useUpdateMachineAlias,
   type MachineStatus,
-  type Machine
+  type Machine,
 } from '@/features/machines';
 
 import {
@@ -37,6 +39,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -65,18 +75,21 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
-import { 
-  Empty, 
-  EmptyHeader, 
-  EmptyTitle, 
-  EmptyDescription, 
-  EmptyMedia 
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyMedia,
 } from '@/components/ui/empty';
 
 export function MachinesPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [status, setStatus] = useState<MachineStatus>('ACTIVE');
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>(
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'grid' : 'list'
+  );
 
   const { data, isLoading, isError } = useMachines({ page, limit, status });
   const archiveMutation = useArchiveMachine();
@@ -99,7 +112,7 @@ export function MachinesPage() {
       {
         onSuccess: () => {
           setEditingMachine(null);
-        }
+        },
       }
     );
   };
@@ -117,7 +130,9 @@ export function MachinesPage() {
   const handleArchive = (id: string) => archiveMutation.mutate(id);
   const handleRestore = (id: string) => restoreMutation.mutate(id);
   const handleDelete = (id: string) => {
-    if (confirm('Tem certeza que deseja excluir esta máquina definitivamente?')) {
+    if (
+      confirm('Tem certeza que deseja excluir esta máquina definitivamente?')
+    ) {
       deleteMutation.mutate(id);
     }
   };
@@ -137,12 +152,34 @@ export function MachinesPage() {
               </Badge>
             )}
           </div>
-          <p className="text-muted-foreground mt-1">
+          <p className="mt-1 text-muted-foreground">
             Gerenciamento e monitoramento de máquinas cadastradas.
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex justify-end gap-4 sm:items-center">
+          <ToggleGroup
+            type="single"
+            value={viewMode}
+            onValueChange={(v) => v && setViewMode(v as 'list' | 'grid')}
+            className="h-9 rounded-full bg-muted p-1"
+          >
+            <ToggleGroupItem
+              value="list"
+              aria-label="Modo Lista"
+              className="h-full rounded-full px-3 text-foreground/60 transition-all hover:text-foreground data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-xs dark:data-[state=on]:bg-input/30"
+            >
+              <LayoutList className="size-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="grid"
+              aria-label="Modo Grade"
+              className="h-full rounded-full px-3 text-foreground/60 transition-all hover:text-foreground data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-xs dark:data-[state=on]:bg-input/30"
+            >
+              <LayoutGrid className="size-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+
           <Tabs value={status} onValueChange={handleStatusChange}>
             <TabsList>
               <TabsTrigger value="ACTIVE">Ativos</TabsTrigger>
@@ -166,7 +203,8 @@ export function MachinesPage() {
               </EmptyMedia>
               <EmptyTitle>Erro ao carregar</EmptyTitle>
               <EmptyDescription>
-                Não foi possível buscar as máquinas no momento. Tente novamente mais tarde.
+                Não foi possível buscar as máquinas no momento. Tente novamente
+                mais tarde.
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
@@ -178,93 +216,229 @@ export function MachinesPage() {
               </EmptyMedia>
               <EmptyTitle>Nenhuma máquina encontrada</EmptyTitle>
               <EmptyDescription>
-                {status === 'ACTIVE' 
-                  ? "Ainda não há máquinas ativas cadastradas no sistema."
-                  : "Nenhuma máquina foi arquivada até o momento."}
+                {status === 'ACTIVE'
+                  ? 'Ainda não há máquinas ativas cadastradas no sistema.'
+                  : 'Nenhuma máquina foi arquivada até o momento.'}
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
         ) : (
           <>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[300px]">ID da Máquina</TableHead>
-                  <TableHead>Nome/Apelido</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Data de Cadastro</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {results.map((machine) => (
-                  <TableRow key={machine.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <Server className="size-4 text-muted-foreground" />
-                        {machine.id}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {machine.name ? (
-                        <span className="font-medium">{machine.name}</span>
-                      ) : (
-                        <span className="text-muted-foreground italic text-sm">Sem apelido</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={machine.status === 'ACTIVE' ? 'default' : 'secondary'}
-                      >
-                        {machine.status === 'ACTIVE' ? 'Ativo' : 'Arquivado'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(machine.createdAt), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="size-8">
-                            <span className="sr-only">Abrir menu</span>
-                            <MoreHorizontal className="size-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-[160px]">
-                          <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleEditAlias(machine)}>
-                            <Edit2 className="mr-2 size-4" />
-                            Editar Apelido
-                          </DropdownMenuItem>
-                          {machine.status === 'ACTIVE' ? (
-                            <DropdownMenuItem onClick={() => handleArchive(machine.id)}>
-                              <Archive className="mr-2 size-4" />
-                              Arquivar
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem onClick={() => handleRestore(machine.id)}>
-                              <ArchiveRestore className="mr-2 size-4" />
-                              Restaurar
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            variant="destructive"
-                            onClick={() => handleDelete(machine.id)}
-                          >
-                            <Trash2 className="mr-2 size-4" />
-                            Excluir
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            {viewMode === 'list' ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[300px]">ID da Máquina</TableHead>
+                    <TableHead>Nome/Apelido</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Data de Cadastro</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {results.map((machine) => (
+                    <TableRow key={machine.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <Server className="size-4 text-muted-foreground" />
+                          {machine.id}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {machine.name ? (
+                          <span className="font-medium">{machine.name}</span>
+                        ) : (
+                          <span className="text-sm text-muted-foreground italic">
+                            Sem apelido
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            machine.status === 'ACTIVE'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                        >
+                          {machine.status === 'ACTIVE' ? 'Ativo' : 'Arquivado'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {format(
+                          new Date(machine.createdAt),
+                          'dd/MM/yyyy HH:mm',
+                          { locale: ptBR }
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8"
+                            >
+                              <span className="sr-only">Abrir menu</span>
+                              <MoreHorizontal className="size-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align="end"
+                            className="w-[160px]"
+                          >
+                            <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleEditAlias(machine)}
+                            >
+                              <Edit2 className="mr-2 size-4" />
+                              Editar Apelido
+                            </DropdownMenuItem>
+                            {machine.status === 'ACTIVE' ? (
+                              <DropdownMenuItem
+                                onClick={() => handleArchive(machine.id)}
+                              >
+                                <Archive className="mr-2 size-4" />
+                                Arquivar
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={() => handleRestore(machine.id)}
+                              >
+                                <ArchiveRestore className="mr-2 size-4" />
+                                Restaurar
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() => handleDelete(machine.id)}
+                            >
+                              <Trash2 className="mr-2 size-4" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
+                {results.map((machine) => (
+                  <Card key={machine.id}>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="rounded-md bg-muted p-2">
+                            <Server className="size-5 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-base">
+                              {machine.name || (
+                                <span className="text-sm text-muted-foreground italic">
+                                  Sem apelido
+                                </span>
+                              )}
+                            </CardTitle>
+                            <CardDescription
+                              className="mt-0.5 font-mono text-xs"
+                              title={machine.id}
+                            >
+                              {machine.id.length > 15
+                                ? `${machine.id.substring(0, 15)}...`
+                                : machine.id}
+                            </CardDescription>
+                          </div>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="-mr-2 size-8"
+                            >
+                              <span className="sr-only">Abrir menu</span>
+                              <MoreHorizontal className="size-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align="end"
+                            className="w-[160px]"
+                          >
+                            <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleEditAlias(machine)}
+                            >
+                              <Edit2 className="mr-2 size-4" />
+                              Editar Apelido
+                            </DropdownMenuItem>
+                            {machine.status === 'ACTIVE' ? (
+                              <DropdownMenuItem
+                                onClick={() => handleArchive(machine.id)}
+                              >
+                                <Archive className="mr-2 size-4" />
+                                Arquivar
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={() => handleRestore(machine.id)}
+                              >
+                                <ArchiveRestore className="mr-2 size-4" />
+                                Restaurar
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() => handleDelete(machine.id)}
+                            >
+                              <Trash2 className="mr-2 size-4" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-col gap-2.5">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Status</span>
+                          <Badge
+                            variant={
+                              machine.status === 'ACTIVE'
+                                ? 'default'
+                                : 'secondary'
+                            }
+                          >
+                            {machine.status === 'ACTIVE'
+                              ? 'Ativo'
+                              : 'Arquivado'}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            Cadastro
+                          </span>
+                          <span>
+                            {format(
+                              new Date(machine.createdAt),
+                              'dd/MM/yyyy HH:mm',
+                              { locale: ptBR }
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            )}
 
-            <div className="flex items-center justify-between border-t px-4 py-3">
+            <div className="flex flex-col items-center justify-between gap-4 border-t px-4 py-3 sm:flex-row">
               <div className="flex items-center gap-2">
                 <p className="text-sm text-muted-foreground">
                   Itens por página:
@@ -286,22 +460,32 @@ export function MachinesPage() {
                 <Pagination className="mx-0 w-auto">
                   <PaginationContent>
                     <PaginationItem>
-                      <PaginationPrevious 
+                      <PaginationPrevious
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
-                        className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        className={
+                          page === 1
+                            ? 'pointer-events-none opacity-50'
+                            : 'cursor-pointer'
+                        }
                       />
                     </PaginationItem>
-                    
+
                     <PaginationItem>
-                      <span className="text-sm text-muted-foreground mx-4">
+                      <span className="mx-4 text-sm text-muted-foreground">
                         Página {meta.page} de {meta.totalPages}
                       </span>
                     </PaginationItem>
 
                     <PaginationItem>
-                      <PaginationNext 
-                        onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
-                        className={page === meta.totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      <PaginationNext
+                        onClick={() =>
+                          setPage((p) => Math.min(meta.totalPages, p + 1))
+                        }
+                        className={
+                          page === meta.totalPages
+                            ? 'pointer-events-none opacity-50'
+                            : 'cursor-pointer'
+                        }
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -312,7 +496,10 @@ export function MachinesPage() {
         )}
       </div>
 
-      <Dialog open={!!editingMachine} onOpenChange={(open) => !open && setEditingMachine(null)}>
+      <Dialog
+        open={!!editingMachine}
+        onOpenChange={(open) => !open && setEditingMachine(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Editar Apelido da Máquina</DialogTitle>
@@ -330,14 +517,14 @@ export function MachinesPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setEditingMachine(null)}
               disabled={updateAliasMutation.isPending}
             >
               Cancelar
             </Button>
-            <Button 
+            <Button
               onClick={handleSaveAlias}
               disabled={updateAliasMutation.isPending}
             >
