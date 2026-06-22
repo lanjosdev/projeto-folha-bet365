@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { MachinesPage } from '@/pages/MachinesPage';
+import { UsersPage } from '@/pages/UsersPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { ErrorPage } from '@/pages/ErrorPage';
 import { PublicRoute } from './PublicRoute';
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
           {
             path: '/machines',
             element: <MachinesPage />,
+          },
+          {
+            path: '/users',
+            element: <UsersPage />,
           },
           {
             path: '/profile',

@@ -5,6 +5,7 @@ import {
   LogOut,
   ChevronsUpDown,
   UserRound,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth';
 
@@ -33,6 +34,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 const navigation = [
   { name: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
   { name: 'Máquinas', to: '/machines', icon: MonitorSmartphone },
+  { name: 'Usuários', to: '/users', icon: Users },
 ];
 
 export function AppSidebar() {
